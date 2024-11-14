@@ -1,0 +1,37 @@
+<div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="main">
+    <div *ngIf="formError" class="form-error">
+      {{ formError }}
+    </div>
+<div class="container">
+    <div class="email">
+        <label for="email">Email:</label>
+        <input id="email" formControlName="email" type="email" />
+        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="alert">
+          Valid email is required.
+        </div>
+      </div>
+    
+      <div class="password">
+        <label for="password">Password:</label>
+        <input id="password" formControlName="password" type="password" />
+        <div *ngIf="form.get('password')?.invalid && form.get('password')?.touched" class="alert">
+          Password is required and must be at least 6 characters.
+        </div>
+      </div>
+    
+      <div *ngIf="formType === 'signup'" class="confirm">
+        <label for="confirmPassword">Confirm Password:</label>
+        <input id="confirmPassword" formControlName="confirmPassword" type="password" />
+        <div *ngIf="form.get('confirmPassword')?.invalid && form.get('confirmPassword')?.touched" class="alert">
+          Password mismatch.
+        </div>
+      </div>
+    
+      <button class="submit-btn" type="submit" [disabled]="form.invalid">
+        {{ formType === 'signup' ? 'Sign Up' : 'Login' }}
+      </button>
+</div>
+</form>
+</div>
+  

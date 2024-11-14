@@ -1,0 +1,6 @@
+<!-- signup.component.html -->
+<div class="signup-page">
+  <h2 class="welcome">Create <i class="app-name">TaskyMy</i> account</h2>
+  <app-auth-form formType="signup" (authSuccess)="onSignupSuccess()"></app-auth-form>
+  <p>Already have an account? <a routerLink="/pages/login" routerLinkActive="active">Login</a></p>
+</div>
