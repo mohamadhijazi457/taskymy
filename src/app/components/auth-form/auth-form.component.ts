@@ -63,9 +63,13 @@ export class AuthFormComponent implements OnInit {
       this.authSuccess.emit();
     } catch (error) {
       if (error instanceof Error) {
+        // this is a simple handling (could be dynamically done in service file)
         if (error.message.includes('auth/email-already-in-use')) {
           this.formError = 'This email is already registered. Please use a different email.';
-        } else {
+        } else if (!this.authService.checkAuthentication()) {
+          this.formError = 'Invalid credentials.'
+        }
+        else {
           this.formError = error.message || 'An unknown error occurred.';
         }
       } else {

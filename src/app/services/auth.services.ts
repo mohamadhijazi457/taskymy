@@ -1,19 +1,20 @@
 import { Injectable, signal } from '@angular/core';
-import { auth } from '../environments/firebase-configure'; // Firebase auth instance
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth'; // Firebase auth methods
+import { auth } from '../environments/firebase-configure';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getAuth, User } from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root'
 })
-
+//
 export class AuthService {
-  // Defining signals to manage the authentication state and token
-  authToken = signal<string | null>(null); // To track the user token
-  isAuthenticated = signal<boolean>(false); // To track if the user is authenticated
+  // Signal to use the authToken globally
+  authToken = signal<string | null>(null);
+  // Global access to the auth status
+  isAuthenticated = signal<boolean>(false);
 
   constructor() {
-    // Checking for existing token in localStorage and set it in signals if available
+    // updating signals with saved status and token
     if (typeof window !== 'undefined' && window.localStorage) {
       const storedToken = localStorage.getItem('authToken');
       if (storedToken) {
@@ -23,15 +24,17 @@ export class AuthService {
     }
   }
 
-  // Login method
   async login(email: string, password: string) {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await this._signInWithEmailAndPassword(email, password);
+      // accessing the user token
       const token = await this.getAuthToken(userCredential.user);
-      this.authToken.set(token); // Update the token signal
-      this.isAuthenticated.set(true); // Update the authenticated state signal
+      // updating signals
+      this.authToken.set(token);
+      this.isAuthenticated.set(true);
       if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('authToken', token); // Store token in localStorage
+        // saving the auth token to local storage
+        localStorage.setItem('authToken', token);
       }
       return userCredential;
     } catch (error) {
@@ -40,15 +43,15 @@ export class AuthService {
     }
   }
 
-  // Signup method
   async signup(email: string, password: string) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await this._createUserWithEmailAndPassword(email, password);
+      // After creating user saving his auth token
       const token = await this.getAuthToken(userCredential.user);
-      this.authToken.set(token); // Update the token signal
-      this.isAuthenticated.set(true); // Update the authenticated state signal
+      this.authToken.set(token);
+      this.isAuthenticated.set(true);
       if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('authToken', token); // Store token in localStorage
+        localStorage.setItem('authToken', token);
       }
       return userCredential;
     } catch (error) {
@@ -57,14 +60,13 @@ export class AuthService {
     }
   }
 
-  // Logout method
   async logout() {
     try {
-      await signOut(auth);
-      this.authToken.set(null); // Reset the token signal
-      this.isAuthenticated.set(false); // Reset the authenticated state signal
+      await this._signOut();
+      this.authToken.set(null);
+      this.isAuthenticated.set(false);
       if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.removeItem('authToken'); // Remove token from localStorage
+        localStorage.removeItem('authToken');
       }
       console.log('User logged out');
     } catch (error) {
@@ -72,48 +74,42 @@ export class AuthService {
     }
   }
 
-  // Get Authentication Token
+  private async _signInWithEmailAndPassword(email: string, password: string) {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+
+  private async _createUserWithEmailAndPassword(email: string, password: string) {
+    return createUserWithEmailAndPassword(auth, email, password);
+  }
+
+  private async _signOut() {
+    return signOut(auth);
+  }
+
   private async getAuthToken(user: User): Promise<string> {
-    try {
-      const token = await user.getIdToken(true);  // Force token refresh
-      return token;
-    } catch (error) {
-      console.error('Error getting token', error);
-      throw error;
-    }
+    return user.getIdToken(true);
   }
-
-  // Refresh the token
+  // In Firebase the auth token refreshes automatically
+  // However this method was added for multiple options or to handle specific cases 
   async refreshAuthToken(): Promise<void> {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const token = await user.getIdToken(true); // Refresh token
-        this.authToken.set(token); // Update the token signal
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('authToken', token); // Store updated token in localStorage
-        }
-      } catch (error) {
-        console.error('Error refreshing token', error);
+    const currentUser = getAuth().currentUser;
+    if (currentUser) {
+      const token = await currentUser.getIdToken(true);
+      this.authToken.set(token);
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('authToken', token);
       }
-    } else {
-      console.log('No user is authenticated');
     }
   }
 
-// Checking if the user is authenticated
-    checkAuthentication(): boolean {
-    return this.isAuthenticated(); // Getting the current value of the signal
-    }
-  
+  checkAuthentication(): boolean {
+    return this.isAuthenticated();
+  }
 
-  // Geting the stored auth token from signals
   getAuthTokenFromSignal(): string | null {
     return this.authToken();
   }
 
-  // Adding a listener to track the user’s authentication state
   onAuthStateChanged(callback: (user: User | null) => void): void {
     getAuth().onAuthStateChanged(callback);
   }

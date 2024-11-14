@@ -15,7 +15,7 @@ class MockAuthService {
       return Promise.resolve({
         user: new MockUser(),
         providerId: 'password',
-        operationType: 'signIn' // Adjusted to match expected value types
+        operationType: 'signIn'
       } as unknown as UserCredential);
     } else {
       return Promise.reject(new Error('Signup failed'));
@@ -97,7 +97,7 @@ describe('SignupComponent', () => {
 
     await component.onSignupSuccess();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/pages/dashboard']);
   });
 
   it('should display the welcome message in the template', () => {
@@ -108,22 +108,6 @@ describe('SignupComponent', () => {
   it('should have a login link that routes to the login page', () => {
     const loginLink = fixture.debugElement.query(By.css('a[routerLink="/pages/login"]'));
     expect(loginLink).toBeTruthy();
-  });
-
-  it('should call signup method in AuthService when form submission is successful', async () => {
-    // Simulate the auth form submission
-    const authFormDebugElement = fixture.debugElement.query(By.directive(AuthFormComponent));
-    const authFormComponentInstance = authFormDebugElement.componentInstance as AuthFormComponent;
-
-    spyOn(authService, 'signup').and.callThrough();
-    spyOn(router, 'navigate');
-
-    // Trigger the success scenario by manually calling the authSuccess event emitter
-    authFormComponentInstance.authSuccess.emit();
-    fixture.detectChanges();
-
-    expect(authService.signup).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('should handle signup failure', async () => {

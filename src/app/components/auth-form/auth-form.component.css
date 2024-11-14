@@ -66,3 +66,18 @@
   .alert {
     color: #d9534f;
   }
+
+  @media only screen and (max-width: 600px) {
+    .container{
+        padding: 30px !important;
+    }
+
+    .alert {
+        font-size: 12px;
+    }
+
+    .form-error {
+        font-size: 13px !important;
+    }
+  }
+  
