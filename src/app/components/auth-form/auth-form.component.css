@@ -64,6 +64,7 @@
   }
   
   .alert {
+    font-size: 13px !important;
     color: #d9534f;
   }
 

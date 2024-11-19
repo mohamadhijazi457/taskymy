@@ -1,1 +1,28 @@
-<p>weather-panel works!</p>
+<div class="weather-container">
+    <div class="weather-panel">
+      <div class="weather-left">
+        <div class="weather-animated-text">Hey <span class="admin-text">Admin</span>,{{ weatherMessage() }}</div>
+        <div class="country-select-panel">
+            <div class="work-from-text">
+                <label for="country-select" aria-placeholder="Select a country: ">Where are you working from?</label>
+            </div>
+            <select id="country-select" (change)="onCountryChange($event)">
+              <option *ngFor="let country of countries" [value]="country">{{ country.country }}</option>
+            </select>
+          </div>
+      </div>
+      <div class="weather-right" *ngIf="weatherData()">
+        <div class="weather-image-container">
+          <img [src]="weatherImageSrc()" alt="Weather Image" class="weather-image">
+          <div class="weather-info-overlay">
+            <h3>{{ selectedCountry()[0].country }}</h3>
+            <div class="temperature-info">{{ weatherData().current_weather.temperature }} °C</div>
+            <div class="weather-details">
+              <p><span class="label">Temperature:</span> {{ weatherData().current_weather.temperature }} °C</p>
+              <p><span class="label">Wind Speed:</span> {{ weatherData().current_weather.windspeed }} km/h</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

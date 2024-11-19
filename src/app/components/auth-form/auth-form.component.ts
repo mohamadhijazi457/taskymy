@@ -15,7 +15,6 @@ export class AuthFormComponent implements OnInit {
   @Output() authSuccess = new EventEmitter<void>();
 
   form: FormGroup | any = null;
-  formError: string | null = null;
 
   constructor(private fb: FormBuilder, private authService: AuthService) {}
 
@@ -33,6 +32,11 @@ export class AuthFormComponent implements OnInit {
     }
   }
 
+
+  get authError(): string | null {
+    return this.authService.authError();
+  }
+
   passwordMatchValidator(control: any): { [key: string]: boolean } | null {
     if (this.form && this.form.get('password')?.value !== control.value) {
       return { passwordMismatch: true };
@@ -41,40 +45,24 @@ export class AuthFormComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    this.formError = null;
-
-    if (this.form.invalid) {
-      this.formError = 'Please fill out all fields correctly.';
+    if (this.form?.invalid) {
+      this.authService.authError.set('Please fill out all fields correctly.');
       this.form.markAllAsTouched();
       return;
     }
 
     if (this.formType === 'signup' && this.form.value.password !== this.form.value.confirmPassword) {
-      this.formError = 'Passwords do not match.';
+      this.authService.authError.set('Passwords do not match.');
       return;
     }
 
-    try {
-      if (this.formType === 'signup') {
-        await this.authService.signup(this.form.value.email, this.form.value.password);
-      } else {
-        await this.authService.login(this.form.value.email, this.form.value.password);
-      }
-      this.authSuccess.emit();
-    } catch (error) {
-      if (error instanceof Error) {
-        // this is a simple handling (could be dynamically done in service file)
-        if (error.message.includes('auth/email-already-in-use')) {
-          this.formError = 'This email is already registered. Please use a different email.';
-        } else if (!this.authService.checkAuthentication()) {
-          this.formError = 'Invalid credentials.'
-        }
-        else {
-          this.formError = error.message || 'An unknown error occurred.';
-        }
-      } else {
-        this.formError = 'An unknown error occurred.';
-      }
+    if (this.formType === 'signup') {
+      await this.authService.signup(this.form.value.email, this.form.value.password);
+    } else {
+      await this.authService.login(this.form.value.email, this.form.value.password);
+    }
+    if (!this.authService.authError()) {
+      this.authSuccess.emit(); // Emit event only if no error occurred
     }
   }
 }

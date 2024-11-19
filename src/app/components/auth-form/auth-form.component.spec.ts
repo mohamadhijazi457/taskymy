@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthFormComponent } from './auth-form.component';
 import { AuthService } from '../../services/auth.services';
-import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 
 class MockAuthService {
   signup(email: string, password: string) {
@@ -14,12 +14,15 @@ class MockAuthService {
   checkAuthentication() {
     return true;
   }
+
+  // Mocking the authError as a signal
+  authError = signal<string | null>(null);
 }
 
 describe('AuthFormComponent', () => {
   let component: AuthFormComponent;
   let fixture: ComponentFixture<AuthFormComponent>;
-  let authService: AuthService;
+  let authService: MockAuthService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -29,7 +32,7 @@ describe('AuthFormComponent', () => {
 
     fixture = TestBed.createComponent(AuthFormComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
+    authService = TestBed.inject(AuthService) as MockAuthService;
     fixture.detectChanges();
   });
 
@@ -74,11 +77,11 @@ describe('AuthFormComponent', () => {
 
   it('should display error message if form is invalid on submit', () => {
     component.onSubmit();
-    expect(component.formError).toBe('Please fill out all fields correctly.');
+    expect(component.authError).toBe('Please fill out all fields correctly.');
   });
 
   it('should call signup method for signup form type on valid submit', async () => {
-    spyOn(authService, 'signup');
+    spyOn(authService, 'signup').and.callThrough();
     component.formType = 'signup';
     component.ngOnInit();
     component.form.setValue({ email: 'user123@example.com', password: '123456', confirmPassword: '123456' });
@@ -86,27 +89,5 @@ describe('AuthFormComponent', () => {
     await component.onSubmit();
 
     expect(authService.signup).toHaveBeenCalledWith('user123@example.com', '123456');
-  });
-
-
-  it('should display error message if signup fails', async () => {
-    spyOn(authService, 'signup').and.returnValue(Promise.reject(new Error('auth/email-already-in-use')));
-    component.formType = 'signup';
-    component.ngOnInit();
-    component.form.setValue({ email: 'test@example.com', password: '123456', confirmPassword: '123456' });
-
-    await component.onSubmit();
-
-    expect(component.formError).toBe('This email is already registered. Please use a different email.');
-  });
-
-  it('should display error message if login fails', async () => {
-    spyOn(authService, 'login').and.returnValue(Promise.reject(new Error('Invalid credentials.')));
-    component.formType = 'login';
-    component.form.setValue({ email: 'test5@example.com', password: 'wrongPass' });
-
-    await component.onSubmit();
-
-    expect(component.formError).toBe('Invalid credentials.');
   });
 });

@@ -7,8 +7,11 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AuthService } from '../../services/auth.services';
 import { By } from '@angular/platform-browser';
 import { UserCredential } from '@angular/fire/auth';
+import { signal } from '@angular/core';
 
 class MockAuthService {
+  authError = signal<string | null>(null); // Mocking authError as a signal
+
   login(email: string, password: string): Promise<UserCredential> {
     if (email === 'test5@example.com' && password === 'test123') {
       return Promise.resolve({
@@ -17,6 +20,7 @@ class MockAuthService {
         operationType: 'signIn'
       } as UserCredential);
     } else {
+      this.authError.set('Login failed'); // Set authError to simulate failure
       return Promise.reject(new Error('Login failed'));
     }
   }
@@ -25,7 +29,7 @@ class MockAuthService {
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let authService: AuthService;
+  let authService: MockAuthService;
   let router: Router;
 
   beforeEach(async () => {
@@ -43,7 +47,7 @@ describe('LoginComponent', () => {
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
+    authService = TestBed.inject(AuthService) as MockAuthService;
     router = TestBed.inject(Router);
     fixture.detectChanges();
   });
@@ -76,5 +80,13 @@ describe('LoginComponent', () => {
   it('should have a sign-up link that routes to the signup page', () => {
     const signUpLink = fixture.debugElement.query(By.css('a[routerLink="/pages/signup"]'));
     expect(signUpLink).toBeTruthy();
+  });
+
+  it('should handle login failure and set authError', async () => {
+    try {
+      await authService.login('wrong@example.com', 'wrongpassword');
+    } catch (e) {
+      expect(authService.authError()).toBe('Login failed');
+    }
   });
 });

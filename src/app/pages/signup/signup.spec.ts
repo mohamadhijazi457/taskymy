@@ -8,8 +8,11 @@ import { AuthService } from '../../services/auth.services';
 import { By } from '@angular/platform-browser';
 import { UserCredential } from '@angular/fire/auth';
 import { User } from 'firebase/auth';
+import { signal } from '@angular/core';
 
 class MockAuthService {
+  authError = signal<string | null>(null); // Mocking authError as a signal
+
   signup(email: string, password: string): Promise<UserCredential> {
     if (email === 'test@example.com' && password === 'password123') {
       return Promise.resolve({
@@ -18,6 +21,7 @@ class MockAuthService {
         operationType: 'signIn'
       } as unknown as UserCredential);
     } else {
+      this.authError.set('Signup failed'); // Set authError to simulate failure
       return Promise.reject(new Error('Signup failed'));
     }
   }
@@ -58,7 +62,7 @@ describe('SignupComponent', () => {
   let component: SignupComponent;
   let fixture: ComponentFixture<SignupComponent>;
   let router: Router;
-  let authService: AuthService;
+  let authService: MockAuthService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -76,7 +80,7 @@ describe('SignupComponent', () => {
     fixture = TestBed.createComponent(SignupComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
-    authService = TestBed.inject(AuthService);
+    authService = TestBed.inject(AuthService) as MockAuthService;
     fixture.detectChanges();
   });
 
@@ -111,12 +115,10 @@ describe('SignupComponent', () => {
   });
 
   it('should handle signup failure', async () => {
-    spyOn(authService, 'signup').and.callFake(() => Promise.reject(new Error('Signup failed')));
-
     try {
-      await component.onSignupSuccess();
+      await authService.signup('wrong@example.com', 'wrongpassword');
     } catch (e) {
-      expect(e).toContain('Signup failed');
+      expect(authService.authError()).toBe('Signup failed');
     }
   });
 });

@@ -1,1 +1,31 @@
-<p>user-info works!</p>
+<div class="container">
+    <div class="user-profile">
+      <div class="top">
+        <div class="avatar">
+          <div><img [src]="avatar()" alt="User Avatar" /></div>
+          <div><button class="select-avatar" type="button" (click)="toggleAvatarSelection()">
+            Choose my avatar
+          </button></div>
+        </div>
+        <div class="email"> {{ userEmail() }} </div>
+      </div>
+      <div class="bottom">
+        <div class="task-container">
+            <div class="tasks">
+                <p>Pending tasks:</p><p>-</p>
+              </div>
+              <div class="tasks">
+                <p>Done tasks:</p><p>-</p>
+              </div>
+        </div>
+      </div>
+    </div>
+  
+    <form *ngIf="isAvatarSelectionVisible()" class="avatar-selection" (submit)="selectAvatar(avatar())">
+      <div class="avatar-options">
+        <img src="./assets/man.jpg" alt="Avatar 1" (click)="selectAvatar('./assets/man.jpg')" />
+        <img src="./assets/women.jpg" alt="Avatar 2" (click)="selectAvatar('./assets/women.jpg')" />
+        <img src="./assets/hacker.jpg" alt="Avatar 3" (click)="selectAvatar('./assets/hacker.jpg')" />
+      </div>
+    </form>
+  </div>

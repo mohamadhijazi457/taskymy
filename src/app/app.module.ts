@@ -7,6 +7,9 @@ import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import {AuthFormComponent} from './components/auth-form/auth-form.component';
+import { WeatherComponent } from './components/weather-panel/weather-panel.component';
+import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
+
 
 @NgModule({
   declarations: [
@@ -14,12 +17,14 @@ import {AuthFormComponent} from './components/auth-form/auth-form.component';
     LoginComponent,
     SignupComponent,
     DashboardComponent,
-    AuthFormComponent
+    AuthFormComponent,
+    WeatherComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],

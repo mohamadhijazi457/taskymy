@@ -80,7 +80,10 @@ The Google API client ID and other related OAuth configurations are managed in a
 
 2. After selecting a country the lontitude and latitude to this specific country are going to be set in the weather services.
 
-3. More details are going to be included after finishing the setup.
+3. The background image of the weather panel updates on data change
+
+4. The default country is set "Lebanon"
+
 
 ## Running the project
 

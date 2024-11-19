@@ -20,6 +20,7 @@ describe('AuthService', () => {
 
   it('should set authToken and isAuthenticated signals on successful login', async () => {
     const mockUser = { getIdToken: () => Promise.resolve('test-token') } as User;
+    const googleMock = { initiateGoogleOAuth: () => Promise.resolve('ggogle-token')};
     spyOn(service as any, '_signInWithEmailAndPassword').and.returnValue(Promise.resolve({ user: mockUser }));
 
     await service.login('test@example.com', 'password123');
@@ -30,15 +31,27 @@ describe('AuthService', () => {
   });
 
   it('should throw an error and not update signals on failed login', async () => {
-    spyOn(service as any, '_signInWithEmailAndPassword').and.returnValue(Promise.reject('Login error'));
-
-    await expectAsync(service.login('invalid@example.com', 'wrongpassword'))
-      .toBeRejectedWith('Login error');
-
+    try {
+      // Attempt to login with incorrect credentials
+      await service.login('mohamadhijazi457@gmail.com', 'wrongpassword');
+    } catch {
+      // In case the login explicitly throws an error
+    }
+  
+    // Assert the authError is set correctly
+    expect(service.authError()).toEqual('Invalid credentials.');
+    
+    // Assert that authToken is null since login failed
     expect(service.authToken()).toBeNull();
+    
+    // Assert that the user is not authenticated
     expect(service.isAuthenticated()).toBeFalse();
+    
+    // Assert that nothing is saved in localStorage
     expect(localStorage.getItem('authToken')).toBeNull();
   });
+  
+  
 
   it('should set authToken and isAuthenticated signals on successful signup', async () => {
     const mockUser = { getIdToken: () => Promise.resolve('test-token') } as User;
@@ -52,11 +65,10 @@ describe('AuthService', () => {
   });
 
   it('should throw an error and not update signals on failed signup', async () => {
-    spyOn(service as any, '_createUserWithEmailAndPassword').and.returnValue(Promise.reject('Signup error'));
 
-    await expectAsync(service.signup('invalid@example.com', 'short'))
-      .toBeRejectedWith('Signup error');
+    await service.signup('mohamadhijazi457@gmail.com', 'test123');
 
+    expect(service.authError()).toEqual('This email is already registered. Please use a different email.');
     expect(service.authToken()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
     expect(localStorage.getItem('authToken')).toBeNull();

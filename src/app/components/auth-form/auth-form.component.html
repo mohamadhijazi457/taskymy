@@ -1,7 +1,7 @@
 <div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="main">
-    <div *ngIf="formError" class="form-error">
-      {{ formError }}
+    <div *ngIf="authError" class="form-error">
+      {{ authError }}
     </div>
 <div class="container">
     <div class="email">
