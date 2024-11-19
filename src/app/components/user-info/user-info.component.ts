@@ -15,7 +15,6 @@ export class UserInfoComponent {
   isAvatarSelectionVisible = signal<boolean>(false); // State for avatar selection visibility
   userEmail = signal<string | null>(null);
 
-  
   constructor(private auth: AuthService) {}
 
   ngOnInit(): void {
