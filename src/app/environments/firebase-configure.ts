@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 
 // Defining the Firebase configuration with appropriate types
 export const firebaseConfig = {
-  apiKey: 'AIzaSyCB5HZA2oek4kaUNj1zSxnxAVyW2BeANoE',
+  apiKey: '********************************',
   authDomain: 'taskymy.firebaseapp.com',
   projectId: 'taskymy',
   storageBucket: 'taskymy.firebasestorage.app',
-  messagingSenderId: '543037779817',
-  appId: '1:543037779817:web:3d550795a1adba0e8c17f8',
-  measurementId: 'G-GSPSY0MZSJ',
+  messagingSenderId: '***********************************',
+  appId: '******************************************************',
+  measurementId: '*************',
 };
 
 // Initialized Firebase with the provided configuration
